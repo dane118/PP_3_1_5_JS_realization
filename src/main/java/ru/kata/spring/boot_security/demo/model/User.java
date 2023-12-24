@@ -57,14 +57,6 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String surname, String email, Byte age, Integer salary) {
-        this.name = name;
-        this.surname = surname;
-        this.email = email;
-        this.age = age;
-        this.salary = salary;
-    }
-
     public User(String name, String surname, String email, Set<Role> roles, Byte age, Integer salary) {
         this.name = name;
         this.surname = surname;
