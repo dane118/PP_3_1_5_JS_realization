@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @RestController
@@ -26,16 +27,17 @@ public class AdminRestController {
 
     @GetMapping("/")
     public ResponseEntity<List<User>> showAllUsers() {
-         return  ResponseEntity.ok(userService.getAllUsers());
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
-        User user = userService.getById(id);
-        if (user == null) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        try {
+            User user = userService.getById(id);
+            return ResponseEntity.ok(user);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/")
@@ -52,12 +54,13 @@ public class AdminRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable(name = "id") Long id) {
-        User user = userService.getById(id);
-        if (user == null) {
+        try {
+            User user = userService.getById(id);
+            userService.deleteUser(user);
+            return ResponseEntity.ok(String.format("User with id = %d was deleted. ", id));
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(String.format("User with id = %d not found.", id));
         }
-        userService.deleteUser(user);
-        return ResponseEntity.ok(String.format("User with id = %d was deleted. ", id));
     }
 }
